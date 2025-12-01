@@ -20,10 +20,30 @@ impl Solution for Day1 {
     }
 
     fn part2(&self, input: String) -> String {
-        format!("this is part 2 and input was {}", input).to_string()
+        parse(&input).iter().fold([50, 0], |acc, mv| {
+            let [mut pos, mut zero_count] = acc;
+            let move_amt = match mv {
+                Move::Left(amt) => {
+                    zero_count += amt / 100;
+                    (-amt) % 100 // actually using the annoying Rust mod behavior
+                }
+                Move::Right(amt) => {
+                    zero_count += amt / 100;
+                    amt % 100
+                }
+            };
+            if pos + move_amt >= 100 || (pos > 0 && pos + move_amt <= 0) {
+                zero_count += 1
+            }
+            pos += move_amt;
+            pos = ((pos % 100) + 100) % 100;
+            [pos, zero_count]
+        })[1]
+            .to_string()
     }
 }
 
+#[derive(Debug)]
 enum Move {
     Left(i64),
     Right(i64),
