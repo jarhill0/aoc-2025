@@ -1,6 +1,7 @@
+use std::collections::HashSet;
+
 use crate::solutions::Solution;
 use crate::util::int;
-use std::fmt::format;
 
 pub struct Day {}
 
@@ -52,6 +53,44 @@ fn digits(mut x: i64) -> i64 {
     count
 }
 
+fn sum_invalids2(invalids: &HashSet<i64>, range: Vec<&str>) -> i64 {
+    let low = int(range.get(0).unwrap()).unwrap();
+    let high = int(range.get(1).unwrap()).unwrap();
+
+    (low..=high).filter(|x| invalids.contains(x)).sum()
+}
+
+fn digit_left_shift(mut x: i64, by: i64) -> i64 {
+    for _ in 0..by {
+        x *= 10;
+    }
+    x
+}
+
+fn all_invalids2(n: i64) -> HashSet<i64> {
+    let mut set = HashSet::new();
+
+    for d in 1..=n {
+        for rpt_len in 1..=(d / 2) {
+            if d % rpt_len != 0 {
+                continue;
+            }
+
+            let segment_start = digit_left_shift(1, rpt_len - 1); // e.g. 100
+            let segment_end = digit_left_shift(1, rpt_len) - 1; // e.g. 999
+            for segment in segment_start..=segment_end {
+                let mut candidate = 0;
+                for _ in 0..(d / rpt_len) {
+                    candidate = digit_left_shift(candidate, rpt_len) + segment
+                }
+                set.insert(candidate);
+            }
+        }
+    }
+
+    set
+}
+
 impl Solution for Day {
     fn part1(&self, input: &str) -> String {
         let ans: i64 = input
@@ -62,7 +101,12 @@ impl Solution for Day {
     }
 
     fn part2(&self, input: &str) -> String {
-        "".to_string()
+        let invalids = all_invalids2(12); // this is really silly lmao
+        let ans: i64 = input
+            .split(',')
+            .map(|range| sum_invalids2(&invalids, range.split('-').collect()))
+            .sum();
+        format!("{}", ans)
     }
 }
 
@@ -80,7 +124,7 @@ mod tests {
         assert_eq!(result1, "1227775554");
 
         let result2 = d.part2(EXAMPLE_INPUT);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "4174379265");
     }
 
     #[test]
@@ -92,6 +136,6 @@ mod tests {
         assert_eq!(result1, "18595663903");
 
         let result2 = d.part2(&input);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "19058204438");
     }
 }
