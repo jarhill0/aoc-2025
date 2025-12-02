@@ -1,5 +1,5 @@
 use std::env::args;
-use std::io::{stdin, stdout, Write};
+use std::io::{Write, stdin, stdout};
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
