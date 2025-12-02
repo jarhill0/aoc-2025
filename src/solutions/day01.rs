@@ -59,3 +59,43 @@ fn parse(input: &str) -> Vec<Move> {
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::solutions::Solution;
+    use crate::solutions::day01::Day1;
+
+    const EXAMPLE_INPUT: &str = "L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82";
+    #[test]
+    fn example() {
+        let d = Day1 {};
+        let input = EXAMPLE_INPUT.to_string();
+
+        let result1 = d.part1(input.clone());
+        assert_eq!(result1, "3");
+
+        let result2 = d.part2(input);
+        assert_eq!(result2, "6");
+    }
+
+    #[test]
+    fn actual() {
+        let d = Day1 {};
+        let input = crate::input(1);
+
+        let result1 = d.part1(input.clone());
+        assert_eq!(result1, "1034");
+
+        let result2 = d.part2(input);
+        assert_eq!(result2, "6166");
+    }
+}
