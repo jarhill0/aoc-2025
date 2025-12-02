@@ -4,8 +4,8 @@ use crate::util::int;
 pub struct Day1 {}
 
 impl Solution for Day1 {
-    fn part1(&self, input: String) -> String {
-        parse(&input).iter().fold([50, 0], |acc, mv| {
+    fn part1(&self, input: &str) -> String {
+        parse(input).iter().fold([50, 0], |acc, mv| {
             let [mut pos, mut zero_count] = acc;
             match mv {
                 Move::Left(amt) => pos = (pos - amt) % 100,
@@ -19,8 +19,8 @@ impl Solution for Day1 {
             .to_string()
     }
 
-    fn part2(&self, input: String) -> String {
-        parse(&input).iter().fold([50, 0], |acc, mv| {
+    fn part2(&self, input: &str) -> String {
+        parse(input).iter().fold([50, 0], |acc, mv| {
             let [mut pos, mut zero_count] = acc;
             let move_amt = match mv {
                 Move::Left(amt) => {
@@ -78,12 +78,11 @@ L82";
     #[test]
     fn example() {
         let d = Day1 {};
-        let input = EXAMPLE_INPUT.to_string();
 
-        let result1 = d.part1(input.clone());
+        let result1 = d.part1(EXAMPLE_INPUT);
         assert_eq!(result1, "3");
 
-        let result2 = d.part2(input);
+        let result2 = d.part2(EXAMPLE_INPUT);
         assert_eq!(result2, "6");
     }
 
@@ -92,10 +91,10 @@ L82";
         let d = Day1 {};
         let input = crate::input(1);
 
-        let result1 = d.part1(input.clone());
+        let result1 = d.part1(&input);
         assert_eq!(result1, "1034");
 
-        let result2 = d.part2(input);
+        let result2 = d.part2(&input);
         assert_eq!(result2, "6166");
     }
 }

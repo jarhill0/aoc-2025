@@ -15,8 +15,8 @@ fn main() {
         let solution = match (day_num, part_num) {
             (Ok(day_num), Ok(part_num)) => match solutions::look_up(day_num) {
                 Some(solver) => match part_num {
-                    1 => solver.part1(input(day_num)),
-                    2 => solver.part2(input(day_num)),
+                    1 => solver.part1(&input(day_num)),
+                    2 => solver.part2(&input(day_num)),
                     _ => quit("Bad partnum. Should be 1 or 2."),
                 },
                 None => quit("Unknown daynum."),
