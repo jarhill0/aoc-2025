@@ -86,7 +86,7 @@ fn download_input(day_num: u8) -> Result<String, reqwest::Error> {
     }
 
     let client = reqwest::blocking::Client::new();
-    let contents = client
+    let resp = client
         .get(format!(
             "https://adventofcode.com/{}/day/{}/input",
             2025, day_num,
@@ -96,8 +96,9 @@ fn download_input(day_num: u8) -> Result<String, reqwest::Error> {
             "User-Agent",
             format!("AoC 2025 Joey Rees-Hill <aoc@{}.net> v0.1", "reeshill"),
         )
-        .send()?
-        .text()?;
+        .send()?;
+    resp.error_for_status_ref()?;
+    let contents = resp.text()?;
 
     std::fs::create_dir_all(
         local_input_path(day_num)
