@@ -62,8 +62,7 @@ fn parse(input: &str) -> Vec<Move> {
 
 #[cfg(test)]
 mod tests {
-    use crate::solutions::Solution;
-    use crate::solutions::day01::Day1;
+    use super::*;
 
     const EXAMPLE_INPUT: &str = "L68
 L30
