@@ -4,10 +4,12 @@ pub trait Solution {
 }
 
 mod day01;
+mod day02;
 
 pub fn look_up(day: u8) -> Option<Box<dyn Solution>> {
     match day {
         1 => Some(Box::new(day01::Day1 {})),
+        2 => Some(Box::new(day02::Day {})),
         _ => None,
     }
 }
