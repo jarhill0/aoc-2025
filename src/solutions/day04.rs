@@ -79,12 +79,12 @@ impl Grid {
     }
 
     fn remove(&mut self) -> usize {
-        let to_remove = self.to_remove();
-        to_remove.iter().for_each(|roll| {
-            self.rolls.remove(roll);
-        });
-
-        to_remove.len()
+        self.to_remove()
+            .iter()
+            .map(|roll| {
+                self.rolls.remove(roll);
+            })
+            .count()
     }
 }
 
