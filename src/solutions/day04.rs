@@ -6,22 +6,14 @@ pub struct Day {}
 impl Solution for Day {
     fn part1(&self, input: &str) -> String {
         let grid = Grid::from(input);
-        let ans = grid
-            .rolls
-            .iter()
-            .filter(|(x, y)| {
-                Grid::adjacent(*x, *y)
-                    .iter()
-                    .filter(|(x1, y1)| grid.rolls.contains(&(*x1, *y1)))
-                    .count()
-                    < 4
-            })
-            .count();
+        let ans = grid.to_remove().len();
         format!("{}", ans)
     }
 
     fn part2(&self, input: &str) -> String {
-        "".to_string()
+        let mut grid = Grid::from(input);
+        let ans = grid.remove_all();
+        format!("{}", ans)
     }
 }
 
@@ -59,6 +51,41 @@ impl Grid {
         }
         out
     }
+
+    fn remove_all(&mut self) -> usize {
+        let mut total = 0;
+        loop {
+            let removed = self.remove();
+            if removed == 0 {
+                break;
+            }
+            total += removed;
+        }
+        total
+    }
+
+    fn to_remove(&self) -> Vec<(usize, usize)> {
+        self.rolls
+            .iter()
+            .filter(|(x, y)| {
+                Grid::adjacent(*x, *y)
+                    .iter()
+                    .filter(|(x1, y1)| self.rolls.contains(&(*x1, *y1)))
+                    .count()
+                    < 4
+            })
+            .map(|(x, y)| (*x, *y))
+            .collect()
+    }
+
+    fn remove(&mut self) -> usize {
+        let to_remove = self.to_remove();
+        to_remove.iter().for_each(|roll| {
+            self.rolls.remove(roll);
+        });
+
+        to_remove.len()
+    }
 }
 
 #[cfg(test)]
@@ -84,7 +111,7 @@ mod tests {
         assert_eq!(result1, "13");
 
         let result2 = d.part2(EXAMPLE_INPUT);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "43");
     }
 
     #[test]
@@ -96,6 +123,6 @@ mod tests {
         assert_eq!(result1, "1569");
 
         let result2 = d.part2(&input);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "9280");
     }
 }
