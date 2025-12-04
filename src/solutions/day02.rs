@@ -6,7 +6,7 @@ use crate::util::int;
 pub struct Day {}
 
 fn sum_invalids(range: Vec<&str>) -> i64 {
-    let low = int(range.get(0).unwrap()).unwrap();
+    let low = int(range.first().unwrap()).unwrap();
     let high = int(range.get(1).unwrap()).unwrap();
     let d = digits(high) / 2;
 
@@ -54,7 +54,7 @@ fn digits(mut x: i64) -> i64 {
 }
 
 fn sum_invalids2(invalids: &HashSet<i64>, range: Vec<&str>) -> i64 {
-    let low = int(range.get(0).unwrap()).unwrap();
+    let low = int(range.first().unwrap()).unwrap();
     let high = int(range.get(1).unwrap()).unwrap();
 
     (low..=high).filter(|x| invalids.contains(x)).sum()

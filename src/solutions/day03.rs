@@ -16,8 +16,7 @@ fn max_joltage(bank: &str, num_batteries: usize) -> i64 {
         let digit_i = batteries[start_i..]
             .iter()
             .enumerate()
-            .filter(|x| x.1 == best_digit)
-            .next()
+            .find(|x| x.1 == best_digit)
             .unwrap()
             .0;
         joltage *= 10;
