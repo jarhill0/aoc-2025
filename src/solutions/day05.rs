@@ -16,14 +16,37 @@ impl Solution for Day {
     }
 
     fn part2(&self, input: &str) -> String {
+        // I swear a problem in a previous year also involved building an efficient "range-set" data structure
         let (ranges, _) = parse(input);
-        let mut fresh = HashSet::new();
-        ranges.iter().for_each(|r| {
-            r.clone().for_each(|n| {
-                fresh.insert(n);
+        let mut ranges: HashSet<RangeInclusive<i64>> = HashSet::from_iter(ranges.iter().cloned());
+        loop {
+            let mut remove = Vec::new();
+            let mut add = Vec::new();
+            ranges.iter().for_each(|r1| {
+                ranges.iter().filter(|r2| r1 != *r2).for_each(|r2| {
+                    if r2.contains(r1.start()) && remove.len() == 0 {
+                        remove.push(r1.clone());
+                        if !r2.contains(r1.end()) {
+                            add.push((r2.end() + 1)..=*r1.end())
+                        }
+                    }
+                })
+            });
+
+            if remove.len() == 0 && add.len() == 0 {
+                break;
+            }
+
+            remove.iter().for_each(|r| {
+                ranges.remove(r);
+            });
+            add.iter().for_each(|r| {
+                ranges.insert(r.clone());
             })
-        });
-        format!("{}", fresh.len())
+        }
+
+        let ans: i64 = ranges.iter().map(|r| r.end() - r.start() + 1).sum();
+        format!("{}", ans)
     }
 }
 
@@ -78,6 +101,6 @@ mod tests {
         assert_eq!(result1, "511");
 
         let result2 = d.part2(&input);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "350939902751909");
     }
 }
