@@ -20,29 +20,29 @@ impl Solution for Day {
         let (ranges, _) = parse(input);
         let mut ranges: HashSet<RangeInclusive<i64>> = HashSet::from_iter(ranges.iter().cloned());
         loop {
-            let mut remove = Vec::new();
-            let mut add = Vec::new();
+            let mut remove = None;
+            let mut add = None;
             ranges.iter().for_each(|r1| {
                 ranges.iter().filter(|r2| r1 != *r2).for_each(|r2| {
-                    if r2.contains(r1.start()) && remove.len() == 0 {
-                        remove.push(r1.clone());
+                    if r2.contains(r1.start()) && remove.is_none() {
+                        remove = Some(r1.clone());
                         if !r2.contains(r1.end()) {
-                            add.push((r2.end() + 1)..=*r1.end())
+                            add = Some((r2.end() + 1)..=*r1.end())
                         }
                     }
                 })
             });
 
-            if remove.len() == 0 && add.len() == 0 {
+            if remove.is_none() {
                 break;
             }
 
-            remove.iter().for_each(|r| {
-                ranges.remove(r);
-            });
-            add.iter().for_each(|r| {
-                ranges.insert(r.clone());
-            })
+            if let Some(r) = remove {
+                ranges.remove(&r);
+            };
+            if let Some(r) = add {
+                ranges.insert(r);
+            }
         }
 
         let ans: i64 = ranges.iter().map(|r| r.end() - r.start() + 1).sum();
