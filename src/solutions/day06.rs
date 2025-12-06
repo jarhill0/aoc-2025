@@ -25,23 +25,16 @@ impl Solution for Day {
         let mut lines: Vec<&str> = input.lines().collect();
         let operators = tokens(lines[lines.len() - 1]);
         lines.remove(lines.len() - 1);
-        let re_parsed = re_parse(&lines);
+        let lines = lines;
+        let reflected = reflect(&lines);
+        let reflected: Vec<Result<i64, _>> = reflected.iter().map(|n| int(n)).collect();
 
-        let mut op_ind = 0;
-        let mut total = 0;
-        let mut nums = Vec::new();
-        re_parsed.iter().for_each(|n| {
-            if let Ok(n) = int(n.trim()) {
-                nums.push(n);
-            } else {
-                total += prob(&nums, operators[op_ind]);
-                nums.clear();
-                op_ind += 1;
-            }
-        });
-        if !nums.is_empty() {
-            total += prob(&nums, operators[op_ind]);
-        }
+        let number_groups = reflected.split(|n| n.is_err());
+        let total: i64 = number_groups
+            .map(|g| g.iter().map(|n| n.clone().unwrap()).collect::<Vec<i64>>())
+            .zip(operators.iter())
+            .map(|(nums, op)| prob(&nums, op))
+            .sum();
 
         format!("{}", total)
     }
@@ -55,17 +48,16 @@ fn prob(nums: &[i64], op: &str) -> i64 {
     }
 }
 
-fn re_parse(orig: &Vec<&str>) -> Vec<String> {
-    let mut out = Vec::new();
+fn reflect(orig: &Vec<&str>) -> Vec<String> {
     let width = orig.iter().map(|x| x.len()).max().unwrap();
-    for origc in 0..width {
-        let mut out_row = Vec::new();
-        for orig_row in orig.iter() {
-            out_row.push(orig_row.chars().nth(origc).unwrap_or(' '))
-        }
-        out.push(out_row.iter().collect())
-    }
-    out
+
+    (0..width)
+        .map(|origc| {
+            orig.iter()
+                .map(|orig_row| orig_row.chars().nth(origc).unwrap_or(' '))
+                .collect()
+        })
+        .collect()
 }
 
 #[cfg(test)]
