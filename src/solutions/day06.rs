@@ -7,10 +7,10 @@ impl Solution for Day {
     fn part1(&self, input: &str) -> String {
         let problems = token_lines(input);
         let mut total = 0;
-        for p in (0..problems[0].len()) {
+        for p in 0..problems[0].len() {
             let mut nums = Vec::new();
-            for i in (0..problems.len() - 1) {
-                nums.push(int(problems[i][p]).unwrap())
+            for row in problems[..problems.len() - 1].iter() {
+                nums.push(int(row[p]).unwrap())
             }
             match problems[problems.len() - 1][p] {
                 "*" => total += nums.iter().product::<i64>(),
@@ -31,17 +31,15 @@ impl Solution for Day {
         let mut total = 0;
         let mut nums = Vec::new();
         re_parsed.iter().for_each(|n| {
-            dbg!(n);
             if let Ok(n) = int(n.trim()) {
                 nums.push(n);
             } else {
                 total += prob(&nums, operators[op_ind]);
                 nums.clear();
                 op_ind += 1;
-                dbg!("adding it up!", op_ind);
             }
         });
-        if nums.len() > 0 {
+        if !nums.is_empty() {
             total += prob(&nums, operators[op_ind]);
         }
 
@@ -49,7 +47,7 @@ impl Solution for Day {
     }
 }
 
-fn prob(nums: &Vec<i64>, op: &str) -> i64 {
+fn prob(nums: &[i64], op: &str) -> i64 {
     match op {
         "*" => nums.iter().product(),
         "+" => nums.iter().sum(),
@@ -60,10 +58,10 @@ fn prob(nums: &Vec<i64>, op: &str) -> i64 {
 fn re_parse(orig: &Vec<&str>) -> Vec<String> {
     let mut out = Vec::new();
     let width = orig.iter().map(|x| x.len()).max().unwrap();
-    for origc in (0..width) {
+    for origc in 0..width {
         let mut out_row = Vec::new();
-        for origr in (0..orig.len()) {
-            out_row.push(orig[origr].chars().nth(origc).unwrap_or(' '))
+        for orig_row in orig.iter() {
+            out_row.push(orig_row.chars().nth(origc).unwrap_or(' '))
         }
         out.push(out_row.iter().collect())
     }
@@ -99,6 +97,6 @@ mod tests {
         assert_eq!(result1, "4722948564882");
 
         let result2 = d.part2(&input);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "9581313737063");
     }
 }

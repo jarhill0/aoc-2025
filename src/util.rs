@@ -1,7 +1,7 @@
 use std::num::ParseIntError;
 
 pub fn int(string: &str) -> Result<i64, ParseIntError> {
-    string.parse()
+    string.trim().parse()
 }
 
 pub fn tokens(line: &str) -> Vec<&str> {
