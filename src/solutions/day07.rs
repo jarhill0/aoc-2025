@@ -5,11 +5,7 @@ use std::ops::Add;
 
 pub struct Day {}
 
-#[derive(Eq, PartialEq, Hash, Debug)]
-struct Point {
-    r: i64,
-    c: i64,
-}
+type Point = (i64, i64);
 
 fn parse(inp: &str) -> (Point, HashSet<Point>, i64) {
     let mut start = None;
@@ -18,10 +14,7 @@ fn parse(inp: &str) -> (Point, HashSet<Point>, i64) {
 
     inp.lines().enumerate().for_each(|(r, line)| {
         line.chars().enumerate().for_each(|(c, ch)| {
-            let p = Point {
-                r: r as i64,
-                c: c as i64,
-            };
+            let p = (r as i64, c as i64);
             match ch {
                 'S' => start = Some(p),
                 '^' => {
@@ -37,15 +30,13 @@ fn parse(inp: &str) -> (Point, HashSet<Point>, i64) {
 
 impl Day {
     fn solve(&self, input: &str) -> (i64, i64) {
-        let (start, splits, max_r) = parse(input);
+        let ((start_r, start_c), splits, max_r) = parse(input);
         let mut total_splits = 0;
-        let mut row = HashMap::new();
-        row.insert(start.c, 1i64);
-        let row = (start.r..max_r).fold(row, |row, r| {
+        let row = (start_r..max_r).fold(HashMap::from([(start_c, 1i64)]), |row, r| {
             let mut next_row = HashMap::new();
             row.iter().for_each(|(c, ways_to_get)| {
-                let b = Point { r: r + 1, c: *c };
-                if splits.contains(&b) {
+                // check the point below
+                if splits.contains(&(r + 1, *c)) {
                     total_splits += 1;
                     inc_key_by(&mut next_row, c - 1, *ways_to_get);
                     inc_key_by(&mut next_row, c + 1, *ways_to_get);
