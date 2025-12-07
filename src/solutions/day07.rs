@@ -85,8 +85,6 @@ impl Solution for Day {
         let mut row = HashMap::new();
         row.insert(start, 1i64);
         while row.keys().next().unwrap().r < max_r {
-            // visualize(&row, &splits);
-
             let mut next_row = HashMap::new();
             row.iter().for_each(|(p, ways_to_get)| {
                 let b = p.below();
@@ -118,38 +116,6 @@ where
         d.insert(k, existing_val.clone() + v);
     } else {
         d.insert(k, v);
-    }
-}
-
-fn visualize(row_ways: &HashMap<Point, i64>, splits: &HashSet<Point>) {
-    let row = row_ways.keys().next().unwrap().r;
-    let row_ways: HashMap<i64, i64> = row_ways.iter().map(|(p, v)| (p.c, *v)).collect();
-    let splits: HashSet<i64> = splits.iter().filter(|p| p.r == row).map(|p| p.c).collect();
-    let max_c = *row_ways.keys().chain(splits.iter()).max().unwrap_or(&0);
-
-    let mut out = Vec::new();
-    (0..=max_c).for_each(|c| {
-        if splits.contains(&c) {
-            out.push('^');
-        } else if let Some(ways) = row_ways.get(&c) {
-            out.push(stupid(*ways));
-        } else {
-            out.push(' ');
-        }
-    });
-
-    println!("{}", out.iter().collect::<String>());
-}
-
-fn stupid(x: i64) -> char {
-    if x < 10 {
-        (('0' as u8) + x as u8) as char
-    } else if x < 10 + 26 {
-        (('a' as u8) + (x - 10) as u8) as char
-    } else if x < 10 + 26 + 26 {
-        (('A' as u8) + (x - 10 - 26) as u8) as char
-    } else {
-        panic!("I didn't think")
     }
 }
 
