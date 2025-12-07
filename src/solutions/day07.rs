@@ -11,27 +11,6 @@ struct Point {
     c: i64,
 }
 
-impl Point {
-    fn below(&self) -> Point {
-        Point {
-            r: self.r + 1,
-            c: self.c,
-        }
-    }
-    fn left(&self) -> Point {
-        Point {
-            r: self.r,
-            c: self.c - 1,
-        }
-    }
-    fn right(&self) -> Point {
-        Point {
-            r: self.r,
-            c: self.c + 1,
-        }
-    }
-}
-
 fn parse(inp: &str) -> (Point, HashSet<Point>, i64) {
     let mut start = None;
     let mut splits = HashSet::new();
@@ -61,22 +40,22 @@ impl Day {
         let (start, splits, max_r) = parse(input);
         let mut total_splits = 0;
         let mut row = HashMap::new();
-        row.insert(start, 1i64);
-        while row.keys().next().unwrap().r < max_r {
+        row.insert(start.c, 1i64);
+        let row = (start.r..max_r).fold(row, |row, r| {
             let mut next_row = HashMap::new();
-            row.iter().for_each(|(p, ways_to_get)| {
-                let b = p.below();
+            row.iter().for_each(|(c, ways_to_get)| {
+                let b = Point { r: r + 1, c: *c };
                 if splits.contains(&b) {
                     total_splits += 1;
-                    inc_key_by(&mut next_row, b.left(), *ways_to_get);
-                    inc_key_by(&mut next_row, b.right(), *ways_to_get);
+                    inc_key_by(&mut next_row, c - 1, *ways_to_get);
+                    inc_key_by(&mut next_row, c + 1, *ways_to_get);
                 } else {
-                    inc_key_by(&mut next_row, b, *ways_to_get);
+                    inc_key_by(&mut next_row, *c, *ways_to_get);
                 }
             });
 
-            row = next_row;
-        }
+            next_row
+        });
 
         (total_splits, row.values().sum::<i64>())
     }
