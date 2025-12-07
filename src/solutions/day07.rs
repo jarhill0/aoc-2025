@@ -1,9 +1,11 @@
 use crate::solutions::Solution;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
+use std::ops::Add;
 
 pub struct Day {}
 
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Hash, Debug)]
 struct Point {
     r: i64,
     c: i64,
@@ -29,6 +31,7 @@ impl Point {
         }
     }
 }
+
 fn parse(inp: &str) -> (Point, HashSet<Point>, i64) {
     let mut start = None;
     let mut splits = HashSet::new();
@@ -78,7 +81,75 @@ impl Solution for Day {
     }
 
     fn part2(&self, input: &str) -> String {
-        "".to_string()
+        let (start, splits, max_r) = parse(input);
+        let mut row = HashMap::new();
+        row.insert(start, 1i64);
+        while row.keys().next().unwrap().r < max_r {
+            // visualize(&row, &splits);
+
+            let mut next_row = HashMap::new();
+            row.iter().for_each(|(p, ways_to_get)| {
+                let b = p.below();
+                if splits.contains(&b) {
+                    inc_key_by(&mut next_row, b.left(), *ways_to_get);
+                    inc_key_by(&mut next_row, b.right(), *ways_to_get);
+                } else {
+                    inc_key_by(&mut next_row, b, *ways_to_get);
+                }
+            });
+
+            row = next_row;
+        }
+
+        format!("{}", row.values().sum::<i64>())
+    }
+}
+
+fn inc_key_by<K, V>(d: &mut HashMap<K, V>, k: K, v: V)
+where
+    K: Hash,
+    K: Eq,
+    V: Add<Output = V>,
+    V: Clone,
+{
+    // lmao why the hell did I make this generic?
+    let existing_val = d.get(&k);
+    if let Some(existing_val) = existing_val {
+        d.insert(k, existing_val.clone() + v);
+    } else {
+        d.insert(k, v);
+    }
+}
+
+fn visualize(row_ways: &HashMap<Point, i64>, splits: &HashSet<Point>) {
+    let row = row_ways.keys().next().unwrap().r;
+    let row_ways: HashMap<i64, i64> = row_ways.iter().map(|(p, v)| (p.c, *v)).collect();
+    let splits: HashSet<i64> = splits.iter().filter(|p| p.r == row).map(|p| p.c).collect();
+    let max_c = *row_ways.keys().chain(splits.iter()).max().unwrap_or(&0);
+
+    let mut out = Vec::new();
+    (0..=max_c).for_each(|c| {
+        if splits.contains(&c) {
+            out.push('^');
+        } else if let Some(ways) = row_ways.get(&c) {
+            out.push(stupid(*ways));
+        } else {
+            out.push(' ');
+        }
+    });
+
+    println!("{}", out.iter().collect::<String>());
+}
+
+fn stupid(x: i64) -> char {
+    if x < 10 {
+        (('0' as u8) + x as u8) as char
+    } else if x < 10 + 26 {
+        (('a' as u8) + (x - 10) as u8) as char
+    } else if x < 10 + 26 + 26 {
+        (('A' as u8) + (x - 10 - 26) as u8) as char
+    } else {
+        panic!("I didn't think")
     }
 }
 
@@ -112,7 +183,7 @@ mod tests {
         assert_eq!(result1, "21");
 
         let result2 = d.part2(EXAMPLE_INPUT);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "40");
     }
 
     #[test]
@@ -124,6 +195,6 @@ mod tests {
         assert_eq!(result1, "1687");
 
         let result2 = d.part2(&input);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "390684413472684");
     }
 }
