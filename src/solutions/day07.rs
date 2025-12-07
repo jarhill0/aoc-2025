@@ -55,33 +55,11 @@ fn parse(inp: &str) -> (Point, HashSet<Point>, i64) {
 
     (start.unwrap(), splits, max_r)
 }
-impl Solution for Day {
-    fn part1(&self, input: &str) -> String {
+
+impl Day {
+    fn solve(&self, input: &str) -> (i64, i64) {
         let (start, splits, max_r) = parse(input);
         let mut total_splits = 0;
-        let mut row = HashSet::new();
-        row.insert(start);
-        while row.iter().next().unwrap().r < max_r {
-            let mut next_row = HashSet::new();
-            row.iter().for_each(|p| {
-                let b = p.below();
-                if splits.contains(&b) {
-                    next_row.insert(b.left());
-                    next_row.insert(b.right());
-                    total_splits += 1;
-                } else {
-                    next_row.insert(b);
-                }
-            });
-
-            row = next_row;
-        }
-
-        format!("{}", total_splits)
-    }
-
-    fn part2(&self, input: &str) -> String {
-        let (start, splits, max_r) = parse(input);
         let mut row = HashMap::new();
         row.insert(start, 1i64);
         while row.keys().next().unwrap().r < max_r {
@@ -89,6 +67,7 @@ impl Solution for Day {
             row.iter().for_each(|(p, ways_to_get)| {
                 let b = p.below();
                 if splits.contains(&b) {
+                    total_splits += 1;
                     inc_key_by(&mut next_row, b.left(), *ways_to_get);
                     inc_key_by(&mut next_row, b.right(), *ways_to_get);
                 } else {
@@ -99,7 +78,21 @@ impl Solution for Day {
             row = next_row;
         }
 
-        format!("{}", row.values().sum::<i64>())
+        (total_splits, row.values().sum::<i64>())
+    }
+}
+
+impl Solution for Day {
+    fn part1(&self, input: &str) -> String {
+        let (total_splits, _) = self.solve(input);
+
+        format!("{}", total_splits)
+    }
+
+    fn part2(&self, input: &str) -> String {
+        let (_, total_paths) = self.solve(input);
+
+        format!("{}", total_paths)
     }
 }
 
