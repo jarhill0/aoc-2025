@@ -48,7 +48,7 @@ fn prob(nums: &[i64], op: &str) -> i64 {
     }
 }
 
-fn reflect(orig: &Vec<&str>) -> Vec<String> {
+fn reflect(orig: &[&str]) -> Vec<String> {
     let width = orig.iter().map(|x| x.len()).max().unwrap();
 
     (0..width)
