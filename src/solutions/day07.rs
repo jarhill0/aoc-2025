@@ -48,7 +48,7 @@ impl Day {
             next_row
         });
 
-        (total_splits, row.values().sum::<i64>())
+        (total_splits, row.values().sum())
     }
 }
 
