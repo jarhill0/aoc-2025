@@ -57,8 +57,8 @@ fn connect(connections: &mut Vec<HashSet<usize>>, pair: (usize, usize)) {
         return;
     }
 
-    let a_set = connections.iter().filter(|s| s.contains(&a)).next();
-    let b_set = connections.iter().filter(|s| s.contains(&b)).next();
+    let a_set = connections.iter().find(|s| s.contains(&a));
+    let b_set = connections.iter().find(|s| s.contains(&b));
 
     match (a_set, b_set) {
         (None, None) => {
@@ -67,8 +67,7 @@ fn connect(connections: &mut Vec<HashSet<usize>>, pair: (usize, usize)) {
         (Some(_), None) | (None, Some(_)) => {
             let set = connections
                 .iter_mut()
-                .filter(|s| s.contains(&a) || s.contains(&b))
-                .next()
+                .find(|s| s.contains(&a) || s.contains(&b))
                 .unwrap();
             set.insert(a);
             set.insert(b);
@@ -82,15 +81,13 @@ fn connect(connections: &mut Vec<HashSet<usize>>, pair: (usize, usize)) {
             let smaller_set_ind = connections
                 .iter()
                 .enumerate()
-                .filter(|(_, s)| s.contains(&smaller_set_member))
-                .next()
+                .find(|(_, s)| s.contains(&smaller_set_member))
                 .unwrap()
                 .0;
             let smaller_set = connections.remove(smaller_set_ind);
             let larger_set = connections
                 .iter_mut()
-                .filter(|s| s.contains(&larger_set_member))
-                .next()
+                .find(|s| s.contains(&larger_set_member))
                 .unwrap();
             larger_set.extend(smaller_set);
         }
@@ -98,6 +95,7 @@ fn connect(connections: &mut Vec<HashSet<usize>>, pair: (usize, usize)) {
 }
 
 impl Day {
+    #[allow(unused)]
     fn part1ex(&self, input: &str) -> String {
         self.part1solve(input, 10)
     }
