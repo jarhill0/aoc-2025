@@ -107,7 +107,7 @@ impl Day {
         let mut connections = HashSet::new();
         let mut connected_subsets = Vec::new();
 
-        (0..make_connections).for_each(|i| {
+        (0..make_connections).for_each(|_| {
             let pair = closest_unconnected(&points, &connections);
             connections.insert(pair);
             connect(&mut connected_subsets, pair);
@@ -127,7 +127,21 @@ impl Solution for Day {
     }
 
     fn part2(&self, input: &str) -> String {
-        "".to_string()
+        let points = parse(input);
+        let mut connections = HashSet::new();
+        let mut connected_subsets: Vec<HashSet<usize>> =
+            (0..points.len()).map(|id| HashSet::from([id])).collect();
+        let mut ans = 0;
+
+        while connected_subsets.len() != 1 {
+            dbg!(connected_subsets.len());
+            let pair = closest_unconnected(&points, &connections);
+            connections.insert(pair);
+            connect(&mut connected_subsets, pair);
+            ans = points[pair.0].0 * points[pair.1].0
+        }
+
+        format!("{}", ans)
     }
 }
 
@@ -164,7 +178,7 @@ mod tests {
         assert_eq!(result1, "40");
 
         let result2 = d.part2(EXAMPLE_INPUT);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "25272");
     }
 
     #[test]
@@ -176,6 +190,6 @@ mod tests {
         assert_eq!(result1, "57564");
 
         let result2 = d.part2(&input);
-        assert_eq!(result2, "");
+        assert_eq!(result2, "133296744");
     }
 }
