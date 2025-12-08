@@ -97,47 +97,47 @@ fn connect(connections: &mut Vec<HashSet<usize>>, pair: (usize, usize)) {
 }
 
 impl Day {
-    #[allow(unused)]
-    fn part1ex(&self, input: &str) -> String {
-        self.part1solve(input, 10)
-    }
-
-    fn part1solve(&self, input: &str, make_connections: i64) -> String {
+    fn solve(&self, input: &str, part1_iterations: i64) -> (usize, i64) {
         let points = parse(input);
-        let mut connected_subsets = Vec::new();
+        let mut connected_subsets: Vec<HashSet<usize>> =
+            (0..points.len()).map(|id| HashSet::from([id])).collect();
         let mut ordered_pairs = pairs_by_distance(&points);
+        let mut final_pair_product = 0;
+        let mut part1_ans = 0;
+        let mut iterations = 0;
 
-        (0..make_connections).for_each(|_| {
+        while connected_subsets.len() != 1 {
             let pair = ordered_pairs.pop().unwrap();
             connect(&mut connected_subsets, pair);
-        });
+            final_pair_product = points[pair.0].0 * points[pair.1].0;
 
-        let mut subset_sizes: Vec<usize> = connected_subsets.iter().map(|s| s.len()).collect();
-        subset_sizes.sort();
-        subset_sizes.reverse();
-        let ans: usize = subset_sizes.iter().take(3).product();
-        format!("{}", ans)
+            iterations += 1;
+            if iterations == part1_iterations {
+                let mut subset_sizes: Vec<usize> =
+                    connected_subsets.iter().map(|s| s.len()).collect();
+                subset_sizes.sort();
+                subset_sizes.reverse();
+                part1_ans = subset_sizes.iter().take(3).product();
+            }
+        }
+
+        (part1_ans, final_pair_product)
     }
 }
 
 impl Solution for Day {
     fn part1(&self, input: &str) -> String {
-        self.part1solve(input, 1000)
+        let num_connections = if input.lines().count() <= 20 {
+            10 // example
+        } else {
+            1000 // actual
+        };
+        let (ans, _) = self.solve(input, num_connections);
+        format!("{}", ans)
     }
 
     fn part2(&self, input: &str) -> String {
-        let points = parse(input);
-        let mut connected_subsets: Vec<HashSet<usize>> =
-            (0..points.len()).map(|id| HashSet::from([id])).collect();
-        let mut ordered_pairs = pairs_by_distance(&points);
-        let mut ans = 0;
-
-        while connected_subsets.len() != 1 {
-            let pair = ordered_pairs.pop().unwrap();
-            connect(&mut connected_subsets, pair);
-            ans = points[pair.0].0 * points[pair.1].0
-        }
-
+        let (_, ans) = self.solve(input, 0);
         format!("{}", ans)
     }
 }
@@ -171,7 +171,7 @@ mod tests {
     fn example() {
         let d = Day {};
 
-        let result1 = d.part1ex(EXAMPLE_INPUT);
+        let result1 = d.part1(EXAMPLE_INPUT);
         assert_eq!(result1, "40");
 
         let result2 = d.part2(EXAMPLE_INPUT);
