@@ -1,5 +1,6 @@
 use crate::solutions::Solution;
 use crate::util::int;
+use std::cmp::Ordering;
 use std::collections::HashSet;
 
 pub struct Day {}
@@ -15,36 +16,37 @@ fn parse(inp: &str) -> Vec<Point> {
         .collect()
 }
 
-fn closest_unconnected(
-    points: &[Point],
-    direct_connections: &HashSet<(usize, usize)>,
-) -> (usize, usize) {
-    let mut best_dist = f64::MAX;
-    let mut best_pair = (0, 0);
-    points.iter().enumerate().for_each(|(p1id, p1)| {
-        points
-            .iter()
-            .enumerate()
-            .filter(|(p2id, _)| *p2id > p1id)
-            .for_each(|(p2id, p2)| {
-                let d = dist(*p1, *p2);
-                if d < best_dist && !direct_connections.contains(&(p1id, p2id)) {
-                    best_dist = d;
-                    best_pair = (p1id, p2id)
-                }
-            })
-    });
-    if best_pair == (0, 0) {
-        panic!("didn't find one!")
-    }
-    best_pair
+fn pairs_by_distance(points: &[Point]) -> Vec<(usize, usize)> {
+    let mut pairs: Vec<(usize, usize)> = (0..points.len())
+        .flat_map(|p1id| (p1id + 1..points.len()).map(move |p2id| (p1id, p2id)))
+        .collect();
+
+    pairs.sort_by_key(|(p1id, p2id)| dist(points[*p1id], points[*p2id]));
+    pairs.reverse();
+
+    pairs
 }
 
-fn dist(a: Point, b: Point) -> f64 {
+#[derive(PartialOrd, PartialEq)]
+struct MyF64Lmao {
+    v: f64,
+}
+impl Eq for MyF64Lmao {}
+#[allow(clippy::derive_ord_xor_partial_ord)]
+impl Ord for MyF64Lmao {
+    // very silly. But I trust my distance function to always return comparable values
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).expect("you have been cursed")
+    }
+}
+
+fn dist(a: Point, b: Point) -> MyF64Lmao {
     let xd = (a.0 - b.0) as f64;
     let yd = (a.1 - b.1) as f64;
     let zd = (a.2 - b.2) as f64;
-    f64::sqrt(xd * xd + yd * yd + zd * zd)
+    MyF64Lmao {
+        v: f64::sqrt(xd * xd + yd * yd + zd * zd),
+    }
 }
 
 fn connected(connections: &[HashSet<usize>], a: usize, b: usize) -> bool {
@@ -102,12 +104,11 @@ impl Day {
 
     fn part1solve(&self, input: &str, make_connections: i64) -> String {
         let points = parse(input);
-        let mut connections = HashSet::new();
         let mut connected_subsets = Vec::new();
+        let mut ordered_pairs = pairs_by_distance(&points);
 
         (0..make_connections).for_each(|_| {
-            let pair = closest_unconnected(&points, &connections);
-            connections.insert(pair);
+            let pair = ordered_pairs.pop().unwrap();
             connect(&mut connected_subsets, pair);
         });
 
@@ -126,15 +127,13 @@ impl Solution for Day {
 
     fn part2(&self, input: &str) -> String {
         let points = parse(input);
-        let mut connections = HashSet::new();
         let mut connected_subsets: Vec<HashSet<usize>> =
             (0..points.len()).map(|id| HashSet::from([id])).collect();
+        let mut ordered_pairs = pairs_by_distance(&points);
         let mut ans = 0;
 
         while connected_subsets.len() != 1 {
-            dbg!(connected_subsets.len());
-            let pair = closest_unconnected(&points, &connections);
-            connections.insert(pair);
+            let pair = ordered_pairs.pop().unwrap();
             connect(&mut connected_subsets, pair);
             ans = points[pair.0].0 * points[pair.1].0
         }
