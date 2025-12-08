@@ -59,38 +59,35 @@ fn connect(connections: &mut Vec<HashSet<usize>>, pair: (usize, usize)) {
         return;
     }
 
-    let a_set = connections.iter().find(|s| s.contains(&a));
-    let b_set = connections.iter().find(|s| s.contains(&b));
+    let a_set_ind = connections
+        .iter()
+        .enumerate()
+        .find(|(_, s)| s.contains(&a))
+        .map(|(i, _)| i);
+    let b_set_ind = connections
+        .iter()
+        .enumerate()
+        .find(|(_, s)| s.contains(&b))
+        .map(|(i, _)| i);
 
-    match (a_set, b_set) {
+    match (a_set_ind, b_set_ind) {
         (None, None) => {
             connections.push(HashSet::from([a, b]));
         }
-        (Some(_), None) | (None, Some(_)) => {
-            let set = connections
-                .iter_mut()
-                .find(|s| s.contains(&a) || s.contains(&b))
-                .unwrap();
+        (Some(ind), None) | (None, Some(ind)) => {
+            let set = &mut connections[ind];
             set.insert(a);
             set.insert(b);
         }
-        (Some(a_s), Some(b_s)) => {
-            let (larger_set_member, smaller_set_member) = if a_s.len() > b_s.len() {
-                (a, b)
-            } else {
-                (b, a)
-            };
-            let smaller_set_ind = connections
-                .iter()
-                .enumerate()
-                .find(|(_, s)| s.contains(&smaller_set_member))
-                .unwrap()
-                .0;
+        (Some(a_ind), Some(b_ind)) => {
+            let (larger_set_ind, smaller_set_ind) =
+                if connections[a_ind].len() > connections[b_ind].len() {
+                    (a_ind, b_ind)
+                } else {
+                    (b_ind, a_ind)
+                };
             let smaller_set = connections.remove(smaller_set_ind);
-            let larger_set = connections
-                .iter_mut()
-                .find(|s| s.contains(&larger_set_member))
-                .unwrap();
+            let larger_set = &mut connections[larger_set_ind];
             larger_set.extend(smaller_set);
         }
     }
