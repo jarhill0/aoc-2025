@@ -32,40 +32,19 @@ impl Solution for Day {
     }
 
     fn part2(&self, input: &str) -> String {
-        let p1ans = int(&self.part1(input)).unwrap(); // 🤡
-
         let pts = parse(input);
         let perimeter = boundary(&pts);
-        dbg!(perimeter.len());
-        let (bound_min, bound_max) = bounding_box(&pts);
-        let point_inside = |pt: &(i64, i64)| {
-            if perimeter.contains(pt) {
-                return true;
-            }
-            let mut inside = false;
-            (bound_min.1 - 1..pt.1).for_each(|y| {
-                if perimeter.contains(&(pt.0, y)) {
-                    inside = !inside;
-                }
-            });
-            inside
-        };
 
         let ans = pts
             .iter()
             .enumerate()
             .map(|(i, p1)| {
-                dbg!(i);
                 pts[i + 1..]
                     .iter()
-                    .filter(|p2| (i64::abs(p1.0 - p2.0) + 1) * (i64::abs(p1.1 - p2.1) + 1) < p1ans)
                     .filter(|p2| {
-                        dbg!(p2);
                         let (xmin, xmax) = twosort(p1.0, p2.0);
                         let (ymin, ymax) = twosort(p1.1, p2.1);
 
-                        // let inside_contains_perimeter = (xmin + 1..xmax)
-                        //     .any(|x| (ymin + 1..ymax).any(|y| perimeter.contains(&(x, y))));
                         let inside_contains_perimeter = perimeter
                             .iter()
                             .any(|(x, y)| xmin < *x && *x < xmax && ymin < *y && *y < ymax);
@@ -91,14 +70,6 @@ fn boundary(pts: &[(i64, i64)]) -> HashSet<(i64, i64)> {
     });
 
     out
-}
-
-fn bounding_box(pts: &[(i64, i64)]) -> ((i64, i64), (i64, i64)) {
-    let xmin = pts.iter().map(|p| p.0).min().unwrap();
-    let xmax = pts.iter().map(|p| p.0).max().unwrap();
-    let ymin = pts.iter().map(|p| p.1).min().unwrap();
-    let ymax = pts.iter().map(|p| p.1).max().unwrap();
-    ((xmin, ymin), (xmax, ymax))
 }
 
 fn twosort(a: i64, b: i64) -> (i64, i64) {
