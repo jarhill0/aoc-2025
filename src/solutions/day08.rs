@@ -87,8 +87,10 @@ fn connect(connections: &mut Vec<HashSet<usize>>, pair: (usize, usize)) {
                     (b_ind, a_ind)
                 };
             let smaller_set = connections.remove(smaller_set_ind);
+            connections.insert(smaller_set_ind, HashSet::new()); // indices shift!
             let larger_set = &mut connections[larger_set_ind];
             larger_set.extend(smaller_set);
+            connections.remove(smaller_set_ind);
         }
     }
 }
