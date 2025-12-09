@@ -11,6 +11,7 @@ mod day05;
 mod day06;
 mod day07;
 mod day08;
+mod day09;
 
 pub fn look_up(day: u8) -> Option<Box<dyn Solution>> {
     match day {
@@ -22,6 +23,7 @@ pub fn look_up(day: u8) -> Option<Box<dyn Solution>> {
         6 => Some(Box::new(day06::Day {})),
         7 => Some(Box::new(day07::Day {})),
         8 => Some(Box::new(day08::Day {})),
+        9 => Some(Box::new(day09::Day {})),
         _ => None,
     }
 }
