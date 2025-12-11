@@ -19,28 +19,6 @@ fn parse(inp: &str) -> HashMap<String, Vec<String>> {
         .collect()
 }
 
-fn count_ways(
-    links: &HashMap<String, Vec<String>>,
-    memo: &mut HashMap<String, i64>,
-    to: &str,
-) -> i64 {
-    // as if "from" out "to" you, to accommodate the way I chose to parse the input
-    if to == "out" {
-        return 1;
-    }
-    if memo.contains_key(to) {
-        return memo[to];
-    }
-
-    let ways = links[to]
-        .iter()
-        .map(|next_device| count_ways(links, memo, next_device))
-        .sum();
-    memo.insert(to.to_string(), ways);
-
-    ways
-}
-
 #[derive(Copy, Clone)]
 struct PathCount {
     neither: i64,
@@ -67,6 +45,10 @@ impl PathCount {
             _ => *self,
         }
     }
+
+    fn all(&self) -> i64 {
+        self.neither + self.fft_only + self.dac_only + self.both
+    }
 }
 
 fn add_path_counts(a: PathCount, b: PathCount) -> PathCount {
@@ -78,7 +60,7 @@ fn add_path_counts(a: PathCount, b: PathCount) -> PathCount {
     }
 }
 
-fn count_ways_fft_dac(
+fn count_ways(
     links: &HashMap<String, Vec<String>>,
     memo: &mut HashMap<String, PathCount>,
     to: &str,
@@ -98,7 +80,7 @@ fn count_ways_fft_dac(
 
     let ways = links[to]
         .iter()
-        .map(|next_device| count_ways_fft_dac(links, memo, next_device))
+        .map(|next_device| count_ways(links, memo, next_device))
         .reduce(add_path_counts)
         .unwrap();
     let ways = ways.account_for(to);
@@ -111,13 +93,13 @@ impl Solution for Day {
     fn part1(&self, input: &str) -> String {
         let links = parse(input);
         let mut memo = HashMap::new();
-        format!("{}", count_ways(&links, &mut memo, "you"))
+        format!("{}", count_ways(&links, &mut memo, "you").all())
     }
 
     fn part2(&self, input: &str) -> String {
         let links = parse(input);
         let mut memo = HashMap::new();
-        format!("{}", count_ways_fft_dac(&links, &mut memo, "svr").both)
+        format!("{}", count_ways(&links, &mut memo, "svr").both)
     }
 }
 
